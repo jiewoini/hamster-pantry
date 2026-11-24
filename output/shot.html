@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>截图辅助页</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#f6f2e9;width:440px;height:900px;overflow:hidden}
+  canvas{display:block;width:440px;height:900px}
+</style>
+<canvas id="game"></canvas>
+<script src="../engine.js"></script>
+<script src="../cat-care.js"></script>
+<script src="../view.js"></script>
+<script>
+const scene = new URLSearchParams(location.search).get('scene') || 'home'
+const store = {}
+const platform = {
+  read(k) { return store[k] || 0 },
+  write(k, v) { store[k] = v },
+  vibrate() {},
+  openPrivacy() {},
+  requestName(cur, done) { done(cur) }
+}
+store['pantry_cat_care_v1'] = JSON.stringify({
+  mood: 72, energy: 65,
+  inventory: { food: 2, water: 2, box: 1, scarf: 1, ball: 1, cushion: 1 },
+  progress: { pantry: 2 },
+  scarf: false,
+  profile: { coat: 'golden', name: '团子' },
+  favorite: 'box', favoriteKnown: true,
+  boxPhoto: { coat: 'golden', name: '团子', time: Date.now(), weather: 'sunny' }
+})
+store['pantry_unlocked_level_v1'] = 3
+const view = new PantryView.PantryView(document.getElementById('game'), PantryEngine, platform)
+view.resize(440, 900, 1)
+view.compliance = scene === 'compliance'
+if (scene === 'playing') view.start('classic')
+else if (scene === 'daily') view.start('daily')
+else if (scene === 'profile') view.editProfile()
+else if (scene === 'album') view.state = 'album'
+else if (scene === 'toys') view.state = 'toys'
+else if (scene === 'activities') view.state = 'activities'
+else if (scene === 'bags') view.startBags()
+else view.goHome()
+view.render()
+</script>
+</body>
+</html>

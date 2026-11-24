@@ -1,0 +1,54 @@
+{
+  "description": "猫爪收纳局：轻量收纳消除试玩原型",
+  "compileType": "game",
+  "appid": "wxb1bd8d1c531d741b",
+  "projectname": "hamster-pantry",
+  "setting": {
+    "es6": true,
+    "minified": true,
+    "postcss": false,
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "enhance": false,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "swc": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
+    "disableSWC": true
+  },
+  "packOptions": {
+    "ignore": [
+      {
+        "value": "preview.html",
+        "type": "file"
+      },
+      {
+        "value": "README.txt",
+        "type": "file"
+      },
+      {
+        "value": "tests",
+        "type": "folder"
+      },
+      {
+        "value": "output",
+        "type": "folder"
+      }
+    ],
+    "include": []
+  },
+  "simulatorPluginLibVersion": {},
+  "isGameTourist": false,
+  "editorSetting": {}
+}

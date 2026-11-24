@@ -1,0 +1,5 @@
+project.private.config.json
+node_modules/
+*.log
+generated-images/Flat_vector_app_icon_for_a_coz_*.png
+output/shots/_png原始*/
