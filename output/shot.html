@@ -10,6 +10,7 @@
 <canvas id="game"></canvas>
 <script src="../engine.js"></script>
 <script src="../cat-care.js"></script>
+<script src="../find-game.js"></script>
 <script src="../view.js"></script>
 <script>
 const scene = new URLSearchParams(location.search).get('scene') || 'home'
@@ -18,8 +19,15 @@ const platform = {
   read(k) { return store[k] || 0 },
   write(k, v) { store[k] = v },
   vibrate() {},
-  openPrivacy() {},
-  requestName(cur, done) { done(cur) }
+  loadImage(src, done) {
+    const img = new Image()
+    img.onload = () => { window.__ageIconReady = true; done(img) }
+    img.onerror = () => { window.__ageIconReady = true; done(null) }
+    img.src = '../' + src
+  },
+  openPrivacy(fallback) { if (fallback) fallback() },
+  requestName(cur, done) { done(cur) },
+  checkName(content, done) { done({ ok: true }) }
 }
 store['pantry_cat_care_v1'] = JSON.stringify({
   mood: 72, energy: 65,
@@ -33,14 +41,24 @@ store['pantry_cat_care_v1'] = JSON.stringify({
 store['pantry_unlocked_level_v1'] = 3
 const view = new PantryView.PantryView(document.getElementById('game'), PantryEngine, platform)
 view.resize(440, 900, 1)
-view.compliance = scene === 'compliance'
+view.compliance = scene === 'compliance' || scene === 'privacy'
+view.privacyOpen = scene === 'privacy'
 if (scene === 'playing') view.start('classic')
 else if (scene === 'daily') view.start('daily')
 else if (scene === 'profile') view.editProfile()
+else if (scene === 'profileName') { view.editProfile(); view.namePickerOpen = true; view.rollNames() }
 else if (scene === 'album') view.state = 'album'
 else if (scene === 'toys') view.state = 'toys'
 else if (scene === 'activities') view.state = 'activities'
 else if (scene === 'bags') view.startBags()
+else if (scene === 'findIntro') view.startFind()
+else if (scene === 'find') { view.startFind(); view.beginFind(); view.findHelpOpen = false }
+else if (scene === 'findHelp') { view.startFind(); view.beginFind() }
+else if (scene === 'findResult') {
+  view.startFind(); view.beginFind(); view.findHelpOpen = false
+  view.find.items.forEach(item => { item.found = true })
+  view.findPrize = view.findRewardLabel
+}
 else view.goHome()
 view.render()
 </script>

@@ -24,7 +24,7 @@
     </div>
   </form>
 </dialog>
-<script src="engine.js"></script><script src="cat-care.js"></script><script src="view.js"></script>
+<script src="engine.js"></script><script src="cat-care.js"></script><script src="find-game.js"></script><script src="view.js"></script>
 <script>
   const canvas = document.getElementById('game')
   const nameDialog = document.getElementById('name-dialog')
@@ -33,8 +33,14 @@
     read(key) { try { return localStorage.getItem(key) || 0 } catch (error) { return 0 } },
     write(key, value) { try { localStorage.setItem(key, value) } catch (error) {} },
     vibrate() {},
-    openPrivacy() {
-      window.alert('本游戏仅在本机浏览器保存进度，不收集个人信息、不联网，无第三方 SDK。')
+    loadImage(src, done) {
+      const img = new Image()
+      img.onload = () => done(img)
+      img.onerror = () => done(null)
+      img.src = src
+    },
+    openPrivacy(fallback) {
+      if (fallback) fallback()
     },
     requestName(current, done) {
       nameDialog.returnValue = ''
@@ -42,6 +48,15 @@
       nameDialog.addEventListener('close', () => done(nameDialog.returnValue === 'save' ? nameInput.value : undefined), { once: true })
       nameDialog.showModal()
       nameInput.select()
+    },
+    // 浏览器试玩没有云函数，按本地规则放行；真机由云函数 security.msgSecCheck 兜底
+    checkName(content, done) {
+      const name = String(content || '').trim()
+      if (!name) { done({ ok: false, code: 'EMPTY', hint: '名字不能为空' }); return }
+      if ([...name].length > 8) { done({ ok: false, code: 'LONG', hint: '最多 8 个字' }); return }
+      if (!/^[\u4e00-\u9fa5a-zA-Z0-9]+$/.test(name)) { done({ ok: false, code: 'CHARSET', hint: '只能用中文、字母或数字' }); return }
+      if (/(.)\1{4,}/.test(name)) { done({ ok: false, code: 'REPEAT', hint: '不要重复同一个字' }); return }
+      done({ ok: true })
     }
   }
   function limitName() {
@@ -60,10 +75,28 @@
   const view = new PantryView.PantryView(canvas, PantryEngine, platform)
   function resize() { const r = canvas.getBoundingClientRect(); view.resize(r.width, r.height, Math.min(devicePixelRatio || 1, 3)) }
   function local(event) { const r = canvas.getBoundingClientRect(); return [event.clientX - r.left, event.clientY - r.top] }
-  canvas.addEventListener('pointerdown', event => { canvas.setPointerCapture(event.pointerId); view.down(...local(event)) })
-  canvas.addEventListener('pointermove', event => view.move(...local(event)))
-  canvas.addEventListener('pointerup', event => view.up(...local(event)))
-  canvas.addEventListener('pointercancel', () => view.cancel())
+  const activeTouches = new Map()
+  function updateTouch(event) {
+    const [clientX, clientY] = local(event)
+    if (event.pointerType === 'touch') activeTouches.set(event.pointerId, { clientX, clientY })
+    return [clientX, clientY, [...activeTouches.values()]]
+  }
+  canvas.addEventListener('pointerdown', event => {
+    canvas.setPointerCapture(event.pointerId)
+    view.down(...updateTouch(event))
+  })
+  canvas.addEventListener('pointermove', event => {
+    if (event.pointerType === 'touch' && !activeTouches.has(event.pointerId)) return
+    view.move(...updateTouch(event))
+  })
+  canvas.addEventListener('pointerup', event => {
+    activeTouches.delete(event.pointerId)
+    view.up(...local(event), [...activeTouches.values()])
+  })
+  canvas.addEventListener('pointercancel', event => {
+    activeTouches.delete(event.pointerId)
+    view.cancel()
+  })
   window.addEventListener('resize', resize)
   document.addEventListener('visibilitychange', () => document.hidden ? view.suspend() : view.resume())
   resize()

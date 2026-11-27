@@ -50,5 +50,6 @@
   },
   "simulatorPluginLibVersion": {},
   "isGameTourist": false,
-  "editorSetting": {}
+  "editorSetting": {},
+  "libVersion": "3.18.0"
 }

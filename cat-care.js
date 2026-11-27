@@ -34,7 +34,9 @@
     water: { name: '清水', action: '倒清水', message: '团子凑过来喝了几口水。', stat: 'mood', gain: 10 },
     box: { name: '纸箱', action: '陪它玩', message: '团子钻进纸箱，只露出两只耳朵。', stat: 'energy', gain: 20, reusable: true },
     scarf: { name: '小领巾', action: '戴领巾', message: '团子戴着小领巾，抬起了下巴。', stat: 'mood', gain: 8, reusable: true },
-    ball: { name: '毛线球', action: '滚毛线球', message: '团子追上毛线球，伸爪一按。', stat: 'energy', gain: 10, reusable: true }
+    ball: { name: '毛线球', action: '滚毛线球', message: '团子追上毛线球，伸爪一按。', stat: 'energy', gain: 10, reusable: true },
+    mouse: { name: '布老鼠', action: '藏布老鼠', message: '团子伏着等了一会儿，突然伸爪把布老鼠扒出来。', stat: 'energy', gain: 12, reusable: true },
+    rustleBag: { name: '响纸袋', action: '拨响纸袋', message: '团子先闻闻袋口，再把整个脑袋探进去。', stat: 'energy', gain: 12, reusable: true }
   }
   const hasItem = item => Object.prototype.hasOwnProperty.call(ITEMS, item)
   const BALL_COLORS = {
